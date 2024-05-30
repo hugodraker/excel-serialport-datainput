@@ -1,7 +1,7 @@
 'Option Explicit
 If Not WScript.Arguments.Named.Exists("elevate") Then
   CreateObject("Shell.Application").ShellExecute WScript.FullName _
-    , WScript.ScriptFullName & " /elevate", "", "runas", 1
+    , chr(34)&WScript.ScriptFullName&chr(34) & " /elevate", "", "runas", 1
   WScript.Quit
 End If
 
@@ -13,10 +13,10 @@ Dim objShell, objShortcut, strFolder
 Set objShell = WScript.CreateObject("WScript.Shell")
 strFolder = objShell.SpecialFolders("AllUsersStartMenu")
 Set objShortcut = objShell.CreateShortcut(strFolder & "\ExcelUNFORS.lnk")
-objShortcut.TargetPath = "excelunfors.au3"
-objShortcut.WorkingDirectory = scriptDir
+objShortcut.TargetPath = ScriptDir&"\excelunfors.au3"
+objShortcut.WorkingDirectory = ScriptDir
 objShortcut.WindowStyle = 1
-objShortcut.Hotkey = ""
+objShortcut.Hotkey = "CTRL+SHIFT+F12"
 objShortcut.Description = "Dosimeter Excel Entry Software that searches for all cells containing ***, and higlights them"
 objShortcut.Save
 Set objShortcut = Nothing
