@@ -1,3 +1,4 @@
+
 ;Excel data entry tool which scrapes values from a serial port dosimeter
 ;2024 Released into the Public Domain by JB
 ;Many parts pasted from forums, thank you
@@ -33,7 +34,7 @@ Local $oExcel =_Excel_Open()
 	If Not IsObj($oExcel) Then
 		Exit MsgBox(0, "Error", "_Excel_Open()")
 	EndIf
-$aWorkBooks = _Excel_BookList() 
+$aWorkBooks = _Excel_BookList()
 $xlNormalView=1
 
 Local $byrefBinary = 0					;response
@@ -180,15 +181,15 @@ Do
 			_ComClosePort($hComPort)
 			ExitLoop
 			Case $GUI_EVENT_PRIMARYUP
-			$fPos = WinGetPos($hWnd)		 
-			if $fPos[1]<50 then 
+			$fPos = WinGetPos($hWnd)
+			if $fPos[1]<50 then
 				GUISetState(@SW_HIDE,$hWnd)
 			Else
 				GUISetState(@SW_SHOWNOACTIVATE,$hWnd)
 			EndIf
-		Case $GUI_EVENT_RESIZED 
-			$fPos = WinGetPos($hWnd)		 
-			if $fPos[1]<50 then 
+		Case $GUI_EVENT_RESIZED
+			$fPos = WinGetPos($hWnd)
+			if $fPos[1]<50 then
 				GUISetState(@SW_HIDE,$hWnd)
 			Else
 			   GUISetState(@SW_SHOWNOACTIVATE,$hWnd)
@@ -275,7 +276,7 @@ Func _WM_SIZE($hWnd, $Msg, $wParam, $lParam)
 	$fPos = WinGetPos($hWnd)
 	$winwidth=$fPos[2]
 	$winheight=$fPos[3]
-		if $fPos[1]<50 then 
+		if $fPos[1]<50 then
 			GUISetState(@SW_HIDE,$Edit1)
 		Else
 			GUISetState(@SW_SHOWNOACTIVATE,$Edit1)
@@ -285,7 +286,7 @@ EndFunc
 
 func OnAutoItExit()
     if $logging Then FileClose($hLogFile)
-    if  $xpos=$oldxpos Or $sComPort=$oldport Then Return
+    if  $xpos=$oldxpos Then Return
     IniWrite($sinifile, "Settings", "xpos", $xpos)
     IniWrite($sinifile, "Settings", "ypos", $ypos)
 	IniWrite($sinifile, "Settings", "winwidth",$winwidth)
@@ -302,14 +303,14 @@ Func on_WM_EXITSIZEMOVE($_hWnd, $msg, $wParam, $lParam)
 		$winheight=$a[3]
        ; DllCall("user32.dll", "long", "SetWindowPos", "hwnd", $hWnd, "hwnd", $hWnd_BOTTOM, "int", $a[0], "int", $wp[1], _
        ;         "int", 0, "int", 0, "long", BitOR($SWP_NOSIZE, $SWP_NOACTIVATE));BitOR($SWP_NOOWNERZORDER,$SWP_NOACTIVATE))
-      	if $a[3]<170 then 
+      	if $a[3]<170 then
 				GUICtrlSetState($Edit1,$GUI_HIDE)
 			Else
 			   GUICtrlSetState($Edit1,$GUI_SHOW)
 		   EndIf
    EndIf
     ConsoleWrite($xpos&' '&$ypos&@CRLF)
-EndFunc 
+EndFunc
 
 Func On_WM_ACTIVATE($hWnd, $msg, $wParam, $lParam)
 ;    Local $iState = BitAND($wParam, 0x0000FFFF), $iMinimize = BitShift($wParam, 16)
@@ -323,6 +324,12 @@ EndFunc
 Func updateports()
 	_ComClosePort($hComPort)
 	$sComPorts = _ComListPorts()
+    if @error Then
+		GUICtrlSetData($Edit1, 'FAILED to list COM ports')
+		Return
+	Else
+		GUICtrlSetData($Edit1, 'OK, Listing COM Ports')
+	EndIf
 	GuiCtrlSetData($Combo4,  '','')
 	GuiCtrlSetData($Combo4,  _ArrayToString($sComPorts),'')
 	_GUICtrlComboBox_SetCurSel($Combo4, _ArraySearch($sComPorts,'COM'&$sComPort))
