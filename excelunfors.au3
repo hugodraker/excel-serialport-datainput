@@ -648,7 +648,8 @@ Func Search($current,$ext)
       ; If StringRight($current & "\" & $file,StringLen($ext)) = $ext then
 	  If StringInStr($file,$ext) AND StringLeft($file,1)<>'~' then
            ;FileWrite ("filelist.txt" , $current & "\" & $file & @CRLF)
-		   ConsoleWrite($current & "\" & $file &@CRLF)
+		   ConsoleWrite($current & $file &@CRLF)
+		   GUICtrlSetData($Edit1, 'Adding filelist to Templates, currently on: '&$current & $file&@CRLF&"Don't add root drives or large folders, as it will be slow"&@CRLF)
 		   _ArrayAdd($templatefolderlist,$current& "\",'',',')
 		   _ArrayAdd($templatefilelist,$file,'',',')
        Endif
