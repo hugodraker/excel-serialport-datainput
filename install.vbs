@@ -22,7 +22,12 @@ objShortcut.Save
 Set objShortcut = Nothing
 Set objShell = Nothing
 
- filepath=GetPath("%USERPROFILE%") & "\Downloads\"&"autoit-v3-setup.zip"
+filepath=GetPath("%USERPROFILE%") & "\Downloads\"&"autoit-v3-setup.zip"
+
+DIM fso    
+Set fso = CreateObject("Scripting.FileSystemObject")
+
+If fso.FileExists(filepath)=False Then
  Set fso = CreateObject("Scripting.FileSystemObject")
  Set Outp = Wscript.Stdout
  On Error Resume Next
@@ -52,10 +57,16 @@ On Error Goto 0
 
  BS.SaveToFile filepath, 2
 
+End If
+
 Set objShell = CreateObject("Shell.Application")
 objShell.ShellExecute "cmd.exe", "/C" &" "&chr(34)&filepath&chr(34)
-'objShell.ShellExecute """"&GetPath("%windir%") & "\system32\"&"cmd.exe /C start "&""""& filepath &""""&"""", "", "", "runas", 0
-'CreateObject("Wscript.Shell").Run GetPath("%windir%") & "\system32\"&"cmd.exe /C start "&""""& filepath &"""", 1, True
+
+If (fso.FileExists(filepath)) Then
+  WScript.Echo("Download successful, please install Autoit"&vbCrLf&vbCrLf&"excelUNFORS.au3 icon added to start menu"&vbCrLf)
+Else
+  WScript.Echo("Some part of the install failed, maybe all files where not extracted to the same folder, or no internet?"&vbCrLf)
+End If
 
 Function GetPath(ByVal argumentName)
     GetPath= CreateObject("WScript.Shell").ExpandEnvironmentStrings(argumentName)
