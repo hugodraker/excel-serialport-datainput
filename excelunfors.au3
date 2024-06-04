@@ -1,4 +1,3 @@
-
 ;Excel data entry tool which scrapes values from a serial port dosimeter
 ;2024 Released into the Public Domain by JB
 ;Many parts pasted from forums, thank you
@@ -291,6 +290,7 @@ func OnAutoItExit()
     IniWrite($sinifile, "Settings", "ypos", $ypos)
 	IniWrite($sinifile, "Settings", "winwidth",$winwidth)
     IniWrite($sinifile, "Settings", "winheight",$winheight)
+    if $sComPort<>$oldport Then IniWrite($sinifile, "Settings", "port", $sComPort)
 EndFunc
 
 
@@ -477,7 +477,7 @@ Func excelwindow($file)
 		EndIf
 	EndIf
 
-	$aCells=StringSplit(IniRead($sinifile, "Files", $templatefilelist[$file],''),',')
+	if $file<>'' Then $aCells=StringSplit(IniRead($sinifile, "Files", $templatefilelist[$file],''),',')
 	;_ArrayDisplay($aCells)
 	Local $cellmode=''
 	if UBound($aCells)-1<=1 Or $file='' Then
@@ -491,7 +491,9 @@ Func excelwindow($file)
 		$aCells=_ArrayToString($aCells,'')
 		$aCells=StringReplace($aCells,@CRLF,',')
 		$aCells=StringReplace($aCells,'$','')
-		IniWrite($sinifile, "Files", $templatefilelist[$file],$aCells)
+		 if $file<>'' Then
+		   if Not IniRead($sinifile, "Files", $templatefilelist[$file],'') then IniWrite($sinifile, "Files", $templatefilelist[$file],$aCells)
+		 EndIf
 		$cellmode='Found'
 	Else
 		$aCells=_ArrayToString($aCells,',',1)
@@ -609,7 +611,6 @@ Func _LoWord($x)
     Return BitAND($x, 0xFFFF)
 EndFunc   ;==>_LoWord
 
-
 ; http://msdn.microsoft.com/en-us/library/ms646307(VS.85).aspx
 Func _WinAPI_MapVirtualKeyEx($sHexKey, $sKbLayout)
     Local Const $MAPVK_VK_TO_VSC = 0
@@ -619,7 +620,6 @@ Func _WinAPI_MapVirtualKeyEx($sHexKey, $sKbLayout)
     Local Const $MAPVK_VK_TO_VSC_EX = 4
 
     Local $Ret = DllCall('user32.dll', 'long', 'MapVirtualKeyExW', 'int', '0x' & $sHexKey, 'int', 2, 'int', '0x' & $sKbLayout)
-    ;_ArrayDisplay($Ret)
     Return $Ret[0]
 EndFunc   ;==>_WinAPI_MapVirtualKeyEx
 
