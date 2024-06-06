@@ -71,8 +71,8 @@ $hWnd = GUICreate("Excel Data Entry for UNFORS", 578, 189, $xpos, $ypos, BitOR($
 WinSetOnTop($hWnd, "", 1)
 $Input1 = GUICtrlCreateInput("", 16, 8, 65, 28)
 GUICtrlSetFont(-1, 12, 400, 0, "MS Sans Serif")
-$Combo2 = GUICtrlCreateCombo("***", 96, 8, 65, 25, BitOR($CBS_DROPDOWN,$CBS_AUTOHSCROLL))
-GUICtrlSetData($Combo2, "Yes|No|N/A|Y____|N____|N/A__|FIXED|P/T|MAN|'+3|'+2|'+1|'0|'-1|'-2|'-3|technique chart|console APR", "Item 2")
+$Combo2 = GUICtrlCreateCombo("___", 96, 8, 65, 25, BitOR($CBS_DROPDOWN,$CBS_AUTOHSCROLL))
+GUICtrlSetData($Combo2, "***|Yes|No|N/A|Y____|N____|N/A__|FIXED|P/T|MAN|'+3|'+2|'+1|'0|'-1|'-2|'-3|technique chart|console APR", "Item 2")
 GUICtrlSetFont(-1, 12, 400, 0, "MS Sans Serif")
 $Combo3 = GUICtrlCreateCombo("", 256, 8, 224, 25, BitOR($CBS_DROPDOWN,$CBS_AUTOHSCROLL)) ;browse combo
 GUICtrlSetFont(-1, 12, 400, 0, "MS Sans Serif")
@@ -143,6 +143,8 @@ if $iScalex=1 Then
 	HotKeySet("'", 'HotKeyPressed')
 EndIf
 
+HotKeySet('{ENTER}')
+HotKeySet('{ENTER}', 'EnterKeyPressed')
 
 ;GUIRegisterMsg($WM_SIZE, '_WM_SIZE')
 ;GUISetOnEvent($GUI_EVENT_RESIZED, '_WM_SIZE', $hWnd)
@@ -169,9 +171,12 @@ Do
 		$d=_ComReadString($hComPort, $buflen, 1)
 		parseserial($d)
 		_ComClearOutputBuffer($hComPort)
+		Do
+		 $d=_ComReadString($hComPort, 16, 1)
+		 _ComClearOutputBuffer($hComPort)
+		 $d=_ComReadString($hComPort, 16, 1)
+	    Until $d=''
 		ControlFocus($hWnd, '', $Input1)
-	Else
-		_ComClearOutputBuffer($hComPort)
  	EndIf
 
 	$nMsg = GUIGetMsg()
@@ -235,12 +240,7 @@ Do
 			   DrawCellOutline()
 		    EndIf
 		Case $Button9
-			$typedstring=GUICtrlRead($Input1)
-			if $typedstring<>'' Then updatecell($typedstring)
-		    if $cell<UBound($aCells)-1 Then
-				$cell+=1
-				DrawCellOutline()
-			EndIf
+			EnterKeyPressed()
 		Case $Button10
 			$cell=0
 			DrawCellOutline()
@@ -412,12 +412,11 @@ Func parseserial($sDataStream)
 	 Next
 
    ;_ArrayDisplay($kV)
-   displayreading($numreading)
 
 	If $valfound Then
-		GUICtrlSetData($Edit1, $numreading&': '&$kV[$reading]&', '&$dose[$reading]&', '&$time[$reading]&', '&$hvl[$reading]&', '&$pulse[$reading]&', '&$doserate[$reading]&', '&$serialnum)
-		if $logging=1 Then _FileWriteLog($hLogFile, 'LOGGED: '&_NowCalcDate()&' '& _NowTime(4)&$numreading&','&$kV[$reading]&','&$dose[$reading]&','&$time[$reading]&','&$hvl[$reading]&','&$pulse[$reading]&','&$doserate[$reading]&','&$serialnum&@CRLF&$sDataStream&@CRLF)
-
+		GUICtrlSetData($Edit1, $numreading+1&': '&$kV[$reading]&', '&$dose[$reading]&', '&$time[$reading]&', '&$hvl[$reading]&', '&$pulse[$reading]&', '&$doserate[$reading]&', '&$serialnum)
+		if $logging=1 Then _FileWriteLog($hLogFile, 'LOGGED: '&_NowCalcDate()&' '& _NowTime(4)&' '&$numreading&','&$kV[$reading]&','&$dose[$reading]&','&$time[$reading]&','&$hvl[$reading]&','&$pulse[$reading]&','&$doserate[$reading]&','&$serialnum&@CRLF&$sDataStream&@CRLF)
+		displayreading($numreading)
 		$reading=$numreading;+1;UBound($kV)-1
 		$numreading+=1
 		_ArrayAdd($kV,0)
@@ -671,4 +670,13 @@ Func updatetemplates()
    GUICtrlSetData($Combo3, _ArrayToString($templatefilelist, '|')&'|Browse for Template Folder','')
    _GUICtrlComboBox_SetCurSel($Combo3, Ubound($templatefilelist))
    ControlFocus( $hWnd, '', $Input1)
+EndFunc
+
+Func EnterKeyPressed()
+	$typedstring=GUICtrlRead($Input1)
+		if $typedstring<>'' Then updatecell($typedstring)
+		if $cell<UBound($aCells)-1 Then
+			$cell+=1
+			DrawCellOutline()
+		EndIf
 EndFunc

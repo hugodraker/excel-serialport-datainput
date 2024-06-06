@@ -5,6 +5,27 @@ If Not WScript.Arguments.Named.Exists("elevate") Then
   WScript.Quit
 End If
 
+Dim objShell: Set objShell = CreateObject("WScript.Shell")
+
+Select Case objShell.Popup("This script will attempt to install excelUNFORS, and download and Autoit"&vbCrLf&"Please ensure all files are extracted to the folder you wish to install to."&vbCrLf&vbCrLf&"Do you wish to continue?", 10, "Install excelUNFORS", 1)
+Case -1 
+    'Timed Out
+    WScript.Quit
+Case 1
+    Install("")
+Case 2
+    WScript.Quit
+End Select
+
+
+Function GetPath(ByVal argumentName)
+    GetPath= CreateObject("WScript.Shell").ExpandEnvironmentStrings(argumentName)
+End Function
+
+
+
+Function Install(ByVal argumentName)
+
 Dim scriptDir, filepath
 scriptDir = Left(WScript.ScriptFullName, InStrRev(WScript.ScriptFullName, "\") - 1)
 
@@ -68,6 +89,4 @@ Else
   WScript.Echo("Some part of the install failed, maybe all files where not extracted to the same folder, or no internet?"&vbCrLf)
 End If
 
-Function GetPath(ByVal argumentName)
-    GetPath= CreateObject("WScript.Shell").ExpandEnvironmentStrings(argumentName)
 End Function
